@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">HJSelfieCamera</string>
+    <string name="lab_welcome">Bienvenido a HJSelfieCamera</string>
+    <string name="lab_great">La mejor cámara del mercado. Para usarme recuerda iniciar con tu Huawei ID</string>
+    <string name="canceled">Cancelado</string>
+    <string name="error_on_login">Hubo un error al intentar ingresar</string>
+    <string name="error_on_logout">Hubo un error al cerrar sesión</string>
+</resources>
