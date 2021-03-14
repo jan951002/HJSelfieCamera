@@ -8,21 +8,39 @@ import com.huawei.hms.support.hwid.request.HuaweiIdAuthParamsHelper
 import com.jan.hjselfiecamera.R
 import com.jan.hjselfiecamera.base.BaseActivity
 import com.jan.hjselfiecamera.ui.login.AuthActivity
+import com.jan.hjselfiecamera.util.allPermissionsGranted
+import com.jan.hjselfiecamera.util.runtimePermissions
 import com.jan.hjselfiecamera.util.showToastLengthShort
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : BaseActivity() {
 
+    companion object {
+        private const val PERMISSION_REQUEST = 102
+    }
+
     override fun layoutRes(): Int = R.layout.activity_main
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        if (!allPermissionsGranted())
+            runtimePermissions(PERMISSION_REQUEST)
         btnLogout.setOnClickListener { onBackPressed() }
     }
 
     override fun onBackPressed() {
         logoutWithHuaweiId()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if(requestCode== PERMISSION_REQUEST){
+
+        }
     }
 
     private fun logoutWithHuaweiId() {
