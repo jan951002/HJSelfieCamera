@@ -2,11 +2,12 @@ package com.jan.hjselfiecamera.ui.overlay
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
+import androidx.core.content.ContextCompat
 import com.huawei.hms.mlsdk.face.MLFace
 import com.huawei.hms.mlsdk.face.MLFaceShape
+import com.jan.hjselfiecamera.R
 import com.jan.hjselfiecamera.util.CommonUtils.dpToPx
 
 class LocalFaceGraphic(
@@ -16,9 +17,9 @@ class LocalFaceGraphic(
     private val facePain: Paint
 
     init {
-        val lineWidth = dpToPx(context, 1f)
+        val lineWidth = context.dpToPx(1f)
         facePain = Paint()
-        facePain.color = Color.parseColor("#EF484B")
+        facePain.color = ContextCompat.getColor(context, R.color.purple_500)
         facePain.style = Paint.Style.STROKE
         facePain.strokeWidth = lineWidth
     }
@@ -43,7 +44,7 @@ class LocalFaceGraphic(
             val rect = Rect(
                 translateX(horizontalMin).toInt(),
                 translateY(verticalMin).toInt(),
-                translateY(horizontalMax).toInt(),
+                translateX(horizontalMax).toInt(),
                 translateY(verticalMax).toInt()
 
             )
