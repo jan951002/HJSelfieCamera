@@ -1,7 +1,6 @@
 package com.jan.hjselfiecamera.ui.camera
 
 import android.content.Context
-import android.content.res.Configuration
 import android.util.AttributeSet
 import android.util.Log
 import android.view.SurfaceHolder
@@ -9,12 +8,12 @@ import android.view.SurfaceView
 import android.view.ViewGroup
 import com.huawei.hms.mlsdk.common.LensEngine
 import com.jan.hjselfiecamera.ui.overlay.GraphicOverlay
+import com.jan.hjselfiecamera.util.CommonUtils.isPortraitOrientation
 import java.io.IOException
 
 class LensEnginePreview(context: Context, attributeSet: AttributeSet?) :
     ViewGroup(context, attributeSet) {
 
-    private val mContext = context
     private val mSurfaceView = SurfaceView(context)
     private var mStartRequested = false
     private var mSurfaceAvailable = false
@@ -22,11 +21,55 @@ class LensEnginePreview(context: Context, attributeSet: AttributeSet?) :
     private var mOverlay: GraphicOverlay? = null
 
     init {
+        mSurfaceView.holder.addCallback(SurfaceCallback())
         addView(mSurfaceView)
     }
 
-    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        var previewWidth = 320
+        var previewHeight = 240
+        mLensEngine?.let { lensEngine ->
+            val size = lensEngine.displayDimension
+            size?.let {
+                previewWidth = size.width
+                previewHeight = size.height
+            }
+        }
+        if (context.isPortraitOrientation()) {
+            val tempWidth = previewWidth
+            previewWidth = previewHeight
+            previewHeight = tempWidth
+        }
+        val viewWidth = right - left
+        val viewHeight = bottom - top
+        val childWidth: Int
+        val childHeight: Int
+        var childXOffset = 0
+        var childYOffset = 0
+        val widthRatio = viewWidth.toFloat() / previewWidth.toFloat()
+        val heightRatio = viewHeight.toFloat() / previewHeight.toFloat()
+        if (widthRatio > heightRatio) {
+            childWidth = viewWidth
+            childHeight = (previewHeight.toFloat() * heightRatio).toInt()
+            childYOffset = (childHeight - viewHeight) / 2
+        } else {
+            childWidth = (previewWidth.toFloat() * heightRatio).toInt()
+            childHeight = viewHeight
+            childXOffset = (childWidth - viewWidth) / 2
+        }
+        for (i in 0 until this.childCount) {
+            getChildAt(i).layout(
+                -1 * childXOffset, -1 * childYOffset,
+                childWidth - childXOffset, childHeight - childYOffset
+            )
+        }
+        try {
+            startIfReady()
+        } catch (e: IOException) {
+            Log.e(
+                LensEnginePreview::class.java.name, "ERROR ON INIT CAMERA ${e.localizedMessage}"
+            )
+        }
     }
 
     @Throws(IOException::class)
@@ -40,12 +83,11 @@ class LensEnginePreview(context: Context, attributeSet: AttributeSet?) :
         lensEngine?.let {
             mLensEngine = it
             mStartRequested = true
-        } ?: run {
-            stop()
-        }
+            startIfReady()
+        } ?: run { stop() }
     }
 
-    private fun stop() = mLensEngine?.close()
+    fun stop() = mLensEngine?.close()
 
     fun release() {
         mLensEngine?.release()
@@ -60,7 +102,7 @@ class LensEnginePreview(context: Context, attributeSet: AttributeSet?) :
                 val size = mLensEngine?.displayDimension
                 val min = size?.width?.coerceAtMost(size.height) ?: 0
                 val max = size?.width?.coerceAtLeast(size.height) ?: 0
-                if (Configuration.ORIENTATION_PORTRAIT == mContext.resources.configuration.orientation) {
+                if (context.isPortraitOrientation()) {
                     it.setCameraInfo(min, max, mLensEngine?.lensType ?: 0)
                 } else {
                     it.setCameraInfo(max, min, mLensEngine?.lensType ?: 0)

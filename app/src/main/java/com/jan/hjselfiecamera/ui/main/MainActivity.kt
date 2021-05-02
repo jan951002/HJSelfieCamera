@@ -7,6 +7,8 @@ import com.huawei.hms.support.hwid.request.HuaweiIdAuthParams
 import com.huawei.hms.support.hwid.request.HuaweiIdAuthParamsHelper
 import com.jan.hjselfiecamera.R
 import com.jan.hjselfiecamera.base.BaseActivity
+import com.jan.hjselfiecamera.ui.face.LiveFaceCameraActivity
+import com.jan.hjselfiecamera.ui.face.LiveFaceCameraActivity.Companion.DETECT_MODE_INTENT_TAG
 import com.jan.hjselfiecamera.ui.login.AuthActivity
 import com.jan.hjselfiecamera.util.allPermissionsGranted
 import com.jan.hjselfiecamera.util.runtimePermissions
@@ -26,6 +28,18 @@ class MainActivity : BaseActivity() {
         if (!allPermissionsGranted())
             runtimePermissions(PERMISSION_REQUEST)
         btnLogout.setOnClickListener { onBackPressed() }
+        mostPeopleButton.setOnClickListener {
+            val intent = Intent(this, LiveFaceCameraActivity::class.java)
+            intent.putExtra(DETECT_MODE_INTENT_TAG, LiveFaceCameraActivity.DETECT_MODE_MOST_PEOPLE)
+            startActivity(intent)
+        }
+        nearestPeopleButton.setOnClickListener {
+            val intent = Intent(this, LiveFaceCameraActivity::class.java)
+            intent.putExtra(
+                DETECT_MODE_INTENT_TAG, LiveFaceCameraActivity.DETECT_MODE_NEAREST_PEOPLE
+            )
+            startActivity(intent)
+        }
     }
 
     override fun onBackPressed() {
@@ -38,7 +52,7 @@ class MainActivity : BaseActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(requestCode== PERMISSION_REQUEST){
+        if (requestCode == PERMISSION_REQUEST) {
 
         }
     }
